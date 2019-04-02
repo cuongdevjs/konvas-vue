@@ -59,7 +59,23 @@ export default {
                             id: 6,
                             type: 'nodeThuong',
                             label: 'Nguyễn Văn Kiên',
-                            expand: true
+                            expand: true,
+                            children: [
+                              {
+                                id: 7,
+                                type: 'banHanhNode',
+                                label: 'ban hành',
+                                expand: true,
+                                children: [
+                                  {
+                                    id: 6,
+                                    type: 'nodeThuong',
+                                    label: 'Nguyễn Văn Kiên',
+                                    expand: true
+                                  }
+                                ]
+                              }
+                            ]
                           }
                         ]
                       }
