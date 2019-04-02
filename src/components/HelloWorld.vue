@@ -126,6 +126,7 @@ export default {
       } else {
         this.$set(data, 'expand', true)
       }
+      this.$forceUpdate()
     },
     collapse: function (list) {
       console.log('collapse')
@@ -139,6 +140,7 @@ export default {
         }
         child.children && _this.collapse(child.children)
       })
+      this.$forceUpdate()
     },
     expandChange: function () {
       console.log(this.data)
