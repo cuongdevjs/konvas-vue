@@ -1,21 +1,19 @@
-import Vue from 'vue'
-import Router from 'vue-router'
+import Vue from 'vue';
+import Router from 'vue-router';
 
-import HelloWorld from '@/components/HelloWorld'
-import Home from '@/components/Home.vue'
 Vue.use(Router)
 
 export default new Router({
   routes: [
     {
       path: '/',
-      name: 'HelloWorld',
-      component: HelloWorld
+      name: 'Konvas',
+      component: () => import('../components/Konvas.vue')
     },
     {
-      path: '/home',
-      name: 'Home',
-      component: Home
+      path: '/tree',
+      name: 'Tree',
+      component: () => import('../components/Tree.vue')
     }
   ]
 })
