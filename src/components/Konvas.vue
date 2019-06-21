@@ -21,6 +21,25 @@
         size="mini"
         @click="addNote"
       >Thêm note</el-button>
+      <el-button
+        type="primary"
+        size="mini"
+      >
+        Tẩy
+      </el-button>
+      <el-button
+        type="primary"
+        size="mini"
+      >
+        Xoá
+      </el-button>
+      <el-button
+        type="primary"
+        size="mini"
+        @click="exportToImage()"
+      >
+        EXPORT
+      </el-button>
     </div>
     <div class="page-center">
       <v-stage
@@ -28,21 +47,18 @@
         :config="stageSize"
         @mouseup="handleMouseup"
         @mousemove="handleMousemove"
-        @mousedown="handleMousedown"
-        @touchend="handleMouseup"
-        @touchmove="handleMousemove"
-        @touchstart="handleMousedown"
         @dblclick="addNote"
+        @mousedown="handleMousedown"
         @click="touchEndLine"
       >
         <!-- image -->
         <v-layer ref="layer">
-          <!-- <v-image
+          <v-image
             ref="image"
             :config="{
             image: image
           }"
-          /> -->
+          />
           <!-- <v-image
           ref="image"
           :config="{
@@ -59,6 +75,7 @@
         >
         </v-image> -->
         </v-layer>
+
         <!-- layer 2 -->
         <v-layer ref="layer2">
           <!-- note -->
@@ -110,6 +127,7 @@
         </v-layer>
 
         <v-layer ref="layerDraw"></v-layer>
+
       </v-stage>
     </div>
   </div>
@@ -132,6 +150,7 @@ let vm = {}
 let stage = null
 let layer = null
 let layer2 = null
+let layerDraw = null
 let context = null
 let canvas = null
 let textNode = null
@@ -177,6 +196,7 @@ export default {
   methods: {
 
     addTransformerImmediate (name_refs = '') {
+      console.log(name_refs)
       textNode = vm.$refs[name_refs][0].getNode();
       this.selectedShapeName = name_refs;
       this.updateTransformer();
@@ -212,9 +232,8 @@ export default {
 
     touchEndLine () {
       if (this.isAddLine) {
-        this.numberToCheckAddLine += 1;
         this.pointerPosition = stage.getPointerPosition();
-        if (this.numberToCheckAddLine % 2 !== 0) {
+        if (this.numberToCheckAddLine % 2 === 0) {
           this.numberRefs += 1;
           let new_line = {
             config: {
@@ -231,6 +250,7 @@ export default {
           };
           let numberLine = this.listLine.length;
           this.$set(this.listLine, numberLine, new_line)
+          // this.selectedShapeName = this.listLine[numberLine].config.name
           this.$nextTick(() => {
             this.addTransformerImmediate(this.listLine[numberLine].config.name)
           })
@@ -239,14 +259,16 @@ export default {
             if (item.config.name === this.selectedShapeName) {
               let oldValue = item.config.x
               this.$set(item.config.points, 4, this.pointerPosition.x - oldValue)
-              this.addTransformerImmediate(item.config.name)
             }
           });
           this.$forceUpdate();
-          this.selectedShapeName = ''
-          this.updateTransformer();
+          this.$nextTick(() => {
+            this.addTransformerImmediate(this.selectedShapeName)
+          })
+          // this.selectedShapeName = ''
           this.isAddLine = false;
         }
+        this.numberToCheckAddLine += 1;
       }
     },
 
@@ -301,32 +323,34 @@ export default {
     },
 
     handleMousedown (e) {
-      if (e.target === e.target.getStage()) {
-        // draw line
-        this.allowPaint()
-        // this.selectedShapeName = ''
+      if (!this.isAddLine) {
+        if (e.target === e.target.getStage()) {
+          // draw line
+          this.allowPaint()
+          this.selectedShapeName = ''
+          this.updateTransformer()
+          return
+        }
+
+        // clicked on transformer - do nothing
+        const clickedOnTransformer =
+          e.target.getParent().className === 'Transformer'
+        if (clickedOnTransformer) {
+          // draw line
+          this.allowPaint()
+          return
+        }
+
+        // find clicked rect by its name
+        const name = e.target.name()
+        const rect = textNode
+        if (rect) {
+          this.selectedShapeName = name
+        } else {
+          this.selectedShapeName = ''
+        }
         this.updateTransformer()
-        return
       }
-
-      // clicked on transformer - do nothing
-      const clickedOnTransformer =
-        e.target.getParent().className === 'Transformer'
-      if (clickedOnTransformer) {
-        // draw line
-        this.allowPaint()
-        return
-      }
-
-      // find clicked rect by its name
-      const name = e.target.name()
-      const rect = textNode
-      if (rect) {
-        this.selectedShapeName = name
-      } else {
-        this.selectedShapeName = ''
-      }
-      this.updateTransformer()
     },
 
     handleMouseup (e) {
@@ -354,11 +378,12 @@ export default {
         y: pos.y
       }
       context.lineTo(localPos.x, localPos.y)
-      context.stroke()
       context.closePath()
+      context.stroke()
 
       this.lastPointerPosition = pos
-      // stage.batchDraw()
+      // layerDraw.batchDraw()
+
     },
 
     updateTransformer () {
@@ -366,7 +391,6 @@ export default {
       const transformerNode = this.$refs.transformerText.getStage()
       const stage = transformerNode.getStage()
       const { selectedShapeName } = this
-      console.log(selectedShapeName)
 
       const selectedNode = stage.findOne('.' + selectedShapeName)
       // do nothing if selected node is already attached
@@ -402,6 +426,7 @@ export default {
 
       // at first lets find position of text node relative to the stage:
       var textPosition = textNode.absolutePosition();
+
 
       // then lets find position of stage container on the page:
       var stageBox = stage.container().getBoundingClientRect();
@@ -533,6 +558,25 @@ export default {
 
     handleTransformStart (e) {
       console.log(e)
+    },
+
+    downloadURI (uri, name) {
+      console.log(uri)
+      var link = document.createElement('a');
+      link.download = name;
+      link.href = uri;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      link = ""
+    },
+
+
+    exportToImage () {
+      this.selectedShapeName = "";
+      this.updateTransformer();
+      var dataURL = stage.toDataURL();
+      this.downloadURI(dataURL, 'stage.png');
     }
 
   },
@@ -542,6 +586,9 @@ export default {
     layer = vm.$refs.layer.getNode()
 
     layer2 = vm.$refs.layer2.getNode()
+
+
+    layerDraw = vm.$refs.layerDraw.getNode()
 
     stage = vm.$refs.stage.getNode()
 
@@ -555,40 +602,28 @@ export default {
     img.src = "/static/pag2.jpg";
 
     img.onload = () => {
-      canvas = document.querySelectorAll('canvas');
-      let cvs = canvas[0]
-      let ctx = cvs.getContext("2d")
-      console.log(img.width)
-      console.log(img.height)
+      // canvas = document.querySelectorAll('canvas');
+      // let cvs = canvas[0]
+      // let ctx = cvs.getContext("2d")
+      // console.log(img.width)
+      // console.log(img.height)
       this.$set(this.stageSize, 'height', img.height);
       this.$set(this.stageSize, 'width', img.width);
-      cvs.width = img.width
-      cvs.height = img.height
+      this.image = img;
+      // cvs.width = img.width
+      // cvs.height = img.height
       // Draw image to the canvas
-      ctx.drawImage(img, 0, 0)
+      // ctx.drawImage(img, 0, 0)
     }
-
     canvas = document.querySelectorAll('canvas');
     canvas = canvas[canvas.length - 1]
-
     context = canvas.getContext('2d')
 
     stage.draw()
     layer.draw();
-
-    // this.fitStageIntoParentContainer();
-    // adapt the stage on any window resize
-    // window.addEventListener('resize', this.fitStageIntoParentContainer);
-
-    // console.table({ layer: layer, stage: stage, context: context, canvas: canvas, text: textNode, transform: tr });
   },
 
-  created () {
-  },
 
-  beforeDestroy () {
-    // window.removeEventListener('resize', this.fitStageIntoParentContainer);
-  }
 }
 </script>
 <style>
