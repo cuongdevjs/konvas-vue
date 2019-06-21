@@ -1,24 +1,24 @@
 /*  root */
 
 :root {
-  --color-blue: #007AFF;
-  --color-blue-light: #E1EDFA;
-  --color-red: #E54D42;
-  --color-red-light: #F8E9E8;
-  --color-yellow: #F0C330;
-  --color-yellow-light: #F9F4E6;
-  --color-green: #39CA74;
-  --color-green-light: #E7F5ED;
-  --color-smoke: #ABB4BD;
-  --color-silver: #ABB4BD;
-  --color-dark: #2D3E4F;
+  --color-blue: #007aff;
+  --color-blue-light: #e1edfa;
+  --color-red: #e54d42;
+  --color-red-light: #f8e9e8;
+  --color-yellow: #f0c330;
+  --color-yellow-light: #f9f4e6;
+  --color-green: #39ca74;
+  --color-green-light: #e7f5ed;
+  --color-smoke: #abb4bd;
+  --color-silver: #abb4bd;
+  --color-dark: #2d3e4f;
   --color-light: hsla(240, 1%, 85%, 1);
   --color-black: #000;
-  --color-white: #FFF;
+  --color-white: #fff;
   --transition-ease: all 0.5s cubic-bezier(0.04, 1, 0.6, 0.97);
-  --transition-regular: all .15s ease-out;
-  --font-title: 'Play', sans-serif;
-  --font-regular: 'Roboto', sans-serif;
+  --transition-regular: all 0.15s ease-out;
+  --font-title: "Play", sans-serif;
+  --font-regular: "Roboto", sans-serif;
 }
 
 * {
@@ -26,7 +26,6 @@
   margin: 0;
   box-sizing: border-box;
 }
-
 
 body {
   box-sizing: border-box;
@@ -39,6 +38,15 @@ body {
 body,
 html {
   font-family: --var(--font-regular);
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background-color: #f0f0f0;
+  height: 100%;
+  overflow: auto;
 }
 
 .el-table__body td {
@@ -66,7 +74,6 @@ html {
 .height__100 {
   height: 100%;
 }
-
 
 .flex__center {
   justify-content: center;
@@ -127,12 +134,9 @@ html {
   padding-right: 10px;
 }
 
-
 .inline-flex {
   display: inline-flex;
 }
-
-
 
 .margin-0 {
   margin: 0;
@@ -141,7 +145,6 @@ html {
 .padding-0 {
   padding: 0;
 }
-
 
 .schedule {
   max-width: 100%;
