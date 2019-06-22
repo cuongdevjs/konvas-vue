@@ -24,12 +24,7 @@
       <el-button
         type="primary"
         size="mini"
-      >
-        Tẩy
-      </el-button>
-      <el-button
-        type="primary"
-        size="mini"
+        @click="deleteDraw()"
       >
         Xoá
       </el-button>
@@ -45,9 +40,9 @@
       <v-stage
         ref="stage"
         :config="stageSize"
+        @dblclick="addNote"
         @mouseup="handleMouseup"
         @mousemove="handleMousemove"
-        @dblclick="addNote"
         @mousedown="handleMousedown"
         @click="touchEndLine"
       >
@@ -59,21 +54,6 @@
             image: image
           }"
           />
-          <!-- <v-image
-          ref="image"
-          :config="{
-          sceneFunc: function(context, shape) {
-            context.beginPath();
-            context.strokeRect(1050, 150, 450, 450);
-            context.closePath();
-            context.fillStrokeShape(shape);
-          },
-          fill: '#00D2FF',
-          stroke: 'black',
-          strokeWidth: 1
-          }"
-        >
-        </v-image> -->
         </v-layer>
 
         <!-- layer 2 -->
@@ -114,15 +94,13 @@
           <v-transformer
             ref="transformerText"
             :config="{
-            anchorStroke: 'red',
-            anchorFill: 'red',
-            anchorSize: 5,
-            borderStroke: 'red',
-            borderDash: [5, 5],
-            padding: 5
-          }"
-            @transformstart="handleTransformStart"
-            @transformend="handleTransformEnd"
+              anchorStroke: 'red',
+              anchorFill: 'red',
+              anchorSize: 5,
+              borderStroke: 'red',
+              borderDash: [5, 5],
+              padding: 5
+            }"
           />
         </v-layer>
 
@@ -146,6 +124,8 @@ const fontFamily = "Saira Semi Condensed";
 
 const width = window.innerWidth
 const height = window.innerHeight
+
+
 let vm = {}
 let stage = null
 let layer = null
@@ -196,7 +176,6 @@ export default {
   methods: {
 
     addTransformerImmediate (name_refs = '') {
-      console.log(name_refs)
       textNode = vm.$refs[name_refs][0].getNode();
       this.selectedShapeName = name_refs;
       this.updateTransformer();
@@ -211,7 +190,7 @@ export default {
           fontSize: fontSize,
           fontFamily: fontFamily,
           draggable: true,
-          name: `text${this.numberRefs}`,
+          name: `note${this.numberRefs}`,
           x: this.lastPointerPosition.x || 100,
           y: this.lastPointerPosition.y || 0,
           ellipsis: true,
@@ -259,13 +238,12 @@ export default {
             if (item.config.name === this.selectedShapeName) {
               let oldValue = item.config.x
               this.$set(item.config.points, 4, this.pointerPosition.x - oldValue)
+              this.addTransformerImmediate(item.config.name)
             }
           });
           this.$forceUpdate();
-          this.$nextTick(() => {
-            this.addTransformerImmediate(this.selectedShapeName)
-          })
-          // this.selectedShapeName = ''
+          this.selectedShapeName = ''
+          this.updateTransformer();
           this.isAddLine = false;
         }
         this.numberToCheckAddLine += 1;
@@ -324,9 +302,14 @@ export default {
 
     handleMousedown (e) {
       if (!this.isAddLine) {
+        var pos = stage.getPointerPosition()
+        console.log(pos);
+        this.$set(this.lastPointerPosition, 'x', pos.x);
+        this.$set(this.lastPointerPosition, 'y', pos.y);
+
+
         if (e.target === e.target.getStage()) {
-          // draw line
-          this.allowPaint()
+          // this.allowPaint()
           this.selectedShapeName = ''
           this.updateTransformer()
           return
@@ -336,8 +319,7 @@ export default {
         const clickedOnTransformer =
           e.target.getParent().className === 'Transformer'
         if (clickedOnTransformer) {
-          // draw line
-          this.allowPaint()
+          // this.allowPaint()
           return
         }
 
@@ -427,7 +409,6 @@ export default {
       // at first lets find position of text node relative to the stage:
       var textPosition = textNode.absolutePosition();
 
-
       // then lets find position of stage container on the page:
       var stageBox = stage.container().getBoundingClientRect();
 
@@ -439,31 +420,33 @@ export default {
 
       // create textarea and style it
       var textarea = document.createElement('textarea');
-      document.body.appendChild(textarea);
+      var eleParent = document.querySelector('.konvajs-content');
+      eleParent.appendChild(textarea);
 
       // apply many styles to match text on canvas as close as possible
       // remember that text rendering on canvas and on the textarea can be different
       // and sometimes it is hard to make it 100% the same. But we will try...
       textarea.value = textNode.text();
       textarea.style.position = 'absolute';
-      textarea.style.top = areaPosition.y + 'px';
-      textarea.style.left = areaPosition.x + 'px';
+      textarea.style.top = textPosition.y + 'px';
+      textarea.style.left = textPosition.x + 'px';
       textarea.style.width = textNode.width() - textNode.padding() * 2 + 'px';
       textarea.style.height = textNode.height() - textNode.padding() * 2 + 5 + 'px';
       textarea.style.fontSize = textNode.fontSize() + 'px';
       textarea.style.border = 'none';
+      textarea.style.borderBottom = '1px solid black';
       textarea.style.padding = '0px';
       textarea.style.margin = '0px';
       textarea.style.overflow = 'hidden';
       textarea.style.background = 'none';
       textarea.style.outline = 'none';
-      textarea.style.resize = 'none';
+      textarea.style.resize = '';
       textarea.style.lineHeight = textNode.lineHeight();
-      textarea.style.fontFamily = textNode.fontFamily();
+      textarea.style.fontFamily = textNode.fontFamily() || '';
       textarea.style.transformOrigin = 'left top';
-      textarea.style.textAlign = textNode.align();
-      textarea.style.color = textNode.fill();
-      var rotation = textNode.rotation();
+      textarea.style.textAlign = textNode.align() || 'left';
+      textarea.style.color = textNode.fill() || 'gray';
+      var rotation = textNode.rotation() || 0;
       var transform = '';
       if (rotation) {
         transform += 'rotateZ(' + rotation + 'deg)';
@@ -551,13 +534,26 @@ export default {
       });
     },
 
-
-    handleTransformEnd (e) {
-      console.log(e)
+    findArrayContainItemSelected (nameItem = "") {
+      this.selectedShapeName.includes('line') ?
+        this.listLine.splice(this.listLine.findIndex(item => item.config.name === nameItem), 1)
+        : this.selectedShapeName.includes('shape') ?
+          this.listShape.splice(this.listShape.findIndex(item => item.config.name === nameItem), 1)
+          : this.selectedShapeName.includes('note') ?
+            this.listNote.splice(this.listNote.findIndex(item => item.config.name === nameItem), 1)
+            : this.selectedShapeName.includes('arrow') ?
+              this.listArrow.splice(this.listArrow.findIndex(item => item.config.name === nameItem), 1)
+              : ''
+      this.selectedShapeName = '';
+      this.updateTransformer();
+      this.$forceUpdate();
     },
 
-    handleTransformStart (e) {
-      console.log(e)
+    deleteDraw () {
+      // line, shape, arrow, text
+      if (this.selectedShapeName) {
+        this.findArrayContainItemSelected(this.selectedShapeName);
+      }
     },
 
     downloadURI (uri, name) {
