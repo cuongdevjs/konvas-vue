@@ -8,33 +8,23 @@
       v-if="!isWatchingNote"
     >
       <div class="pAddShape flex-row flex__left">
-        <el-button
-          class="BtnEdit"
-          size="mini"
-          @click="addShape"
-        >
-          <img src="https://img.icons8.com/office/13/000000/rectangle-stroked.png" />
+        <el-button class="BtnEdit" size="mini" @click="addShape">
+          <img
+            src="https://img.icons8.com/office/13/000000/rectangle-stroked.png"
+          />
         </el-button>
-        <el-button
-          class="BtnEdit"
-          size="mini"
-          @click="addLine"
-        >
-          <img src="https://img.icons8.com/ios/13/000000/horizontal-line-filled.png" />
+        <el-button class="BtnEdit" size="mini" @click="addLine">
+          <img
+            src="https://img.icons8.com/ios/13/000000/horizontal-line-filled.png"
+          />
         </el-button>
-        <el-button
-          class="BtnEdit"
-          size="mini"
-          @click="addArrow"
-        >
+        <el-button class="BtnEdit" size="mini" @click="addArrow">
           <i class="fal fa-location-arrow font-size__medium"></i>
         </el-button>
-        <el-button
-          class="BtnEdit"
-          size="mini"
-          @click="addNote"
-        >
-          <img src="https://img.icons8.com/material-two-tone/13/000000/text.png" />
+        <el-button class="BtnEdit" size="mini" @click="addNote">
+          <img
+            src="https://img.icons8.com/material-two-tone/13/000000/text.png"
+          />
         </el-button>
         <el-button
           size="mini"
@@ -44,14 +34,11 @@
         >
           <i class="fal fa-trash font-size__medium"></i>
         </el-button>
-        <el-button
-          class="BtnEdit"
-          size="mini"
-          @click="exportImg"
-        >Export</el-button>
       </div>
       <div class="pEditShape flex-row flex__right">
-        <el-button class="BtnEdit flex-row flex__left padding-top-5 padding-bottom-5 margin-right-10">
+        <el-button
+          class="BtnEdit flex-row flex__left padding-top-5 padding-bottom-5 margin-right-10"
+        >
           <img
             v-for="item in listFontSize"
             :key="item.value"
@@ -74,10 +61,12 @@
       </div>
     </div>
     <transition name="el-fade-in-linear">
-      <VuePerfectScrollbar :class="[
+      <VuePerfectScrollbar
+        :class="[
           'pScrollDoc transition-box page-center',
           isWatchingNote ? 'pWatchingNote' : ''
-        ]">
+        ]"
+      >
         <v-stage
           ref="stage"
           :config="stageSize"
@@ -175,16 +164,6 @@
               }"
             />
           </v-layer>
-
-          <v-layer ref="layer3">
-            <v-image
-              ref="signature"
-              :config="{
-                image: signatureConfig,
-                draggable: true
-              }"
-            />
-          </v-layer>
         </v-stage>
       </VuePerfectScrollbar>
     </transition>
@@ -194,13 +173,12 @@
 <script>
 import VuePerfectScrollbar from "vue-perfect-scrollbar";
 import { TYPE, STYLE } from "./const-shape";
+import { EventBus } from "../../../event-bus.js";
 
 let vm = {};
 let stage = null;
 let layer = null;
 let layer2 = null;
-let layer3 = null;
-let signature = null;
 let textNode = null;
 let tr = null;
 let itemSelected = null;
@@ -211,22 +189,20 @@ export default {
   },
 
   props: [
+    "urlImg",
+    "listShapeDoc",
+    "listLineDoc",
+    "listArrowDoc",
+    "listNoteDoc",
+    "isWatchingNote"
   ],
 
-  beforeDestroy () {
+  beforeDestroy() {
     !this.isWatchingNote && this.sendDataItemChange();
   },
 
-  data () {
+  data() {
     return {
-      isWatchingNote: false,
-      listShapeDoc: [],
-      listLineDoc: [],
-      listNoteDoc: [],
-      listArrowDoc: [],
-      urlImg: '/static/page1.jpg',
-
-
       isFillData: false,
 
       form: {
@@ -252,8 +228,6 @@ export default {
 
       image: null,
 
-      signatureConfig: null,
-
       isPaint: false,
 
       lastPointerPosition: {
@@ -277,7 +251,7 @@ export default {
   },
 
   methods: {
-    sendDataItemChange () {
+    sendDataItemChange() {
       if (
         this.listShape.length ||
         this.listLine.length ||
@@ -295,14 +269,14 @@ export default {
       }
     },
 
-    addTransformerImmediate (nameShape = "", typeShape = "") {
+    addTransformerImmediate(nameShape = "", typeShape = "") {
       textNode = vm.$refs[nameShape][0].getNode();
       this.selectedShapeName = nameShape;
       this.selectedTypeName = typeShape;
       this.updateTransformer();
     },
 
-    addNote () {
+    addNote() {
       if (!this.isWatchingNote) {
         this.numberRefs += 1;
         let new_note = {
@@ -332,13 +306,13 @@ export default {
       }
     },
 
-    addLine () {
+    addLine() {
       if (!this.isWatchingNote) {
         this.isAddLine = true;
       }
     },
 
-    touchEndLine () {
+    touchEndLine() {
       if (!this.isWatchingNote) {
         if (this.isAddLine) {
           this.pointerPosition = stage.getPointerPosition();
@@ -391,7 +365,7 @@ export default {
       }
     },
 
-    addShape () {
+    addShape() {
       if (!this.isWatchingNote) {
         this.numberRefs += 1;
         let new_shape = {
@@ -419,7 +393,7 @@ export default {
       }
     },
 
-    addArrow () {
+    addArrow() {
       if (!this.isWatchingNote) {
         this.numberRefs += 1;
         let new_arrow = {
@@ -449,7 +423,7 @@ export default {
       }
     },
 
-    handleMousedown (e) {
+    handleMousedown(e) {
       if (!this.isAddLine && !this.isWatchingNote) {
         var pos = stage.getPointerPosition();
         this.$set(this.lastPointerPosition, "x", pos.x);
@@ -481,13 +455,13 @@ export default {
       }
     },
 
-    handleMouseup (e) {
+    handleMouseup(e) {
       this.isPaint = false;
     },
 
-    handleMousemove (e) { },
+    handleMousemove(e) {},
 
-    updateTransformer () {
+    updateTransformer() {
       if (!this.isAddLine && !this.isWatchingnote) {
         // here we need to manually attach or detach Transformer node
         const transformerNode = this.$refs.transformerText.getStage();
@@ -511,12 +485,12 @@ export default {
       }
     },
 
-    defineTarget (e) {
+    defineTarget(e) {
       vm = this;
       textNode = vm.$refs[e.target.attrs.name][0].getNode();
     },
 
-    editText (e) {
+    editText(e) {
       this.defineTarget(e);
       textNode.hide();
       tr.hide();
@@ -581,7 +555,7 @@ export default {
 
       textarea.focus();
 
-      function removeTextarea () {
+      function removeTextarea() {
         textarea.parentNode.removeChild(textarea);
         window.removeEventListener("click", handleOutsideClick);
         textNode.show();
@@ -590,7 +564,7 @@ export default {
         layer2.draw();
       }
 
-      function setTextareaWidth (newWidth) {
+      function setTextareaWidth(newWidth) {
         if (!newWidth) {
           // set width for placeholder
           newWidth = textNode.placeholder.length * textNode.fontSize();
@@ -612,7 +586,7 @@ export default {
         textarea.style.width = newWidth + "px";
       }
 
-      textarea.addEventListener("keydown", function (e) {
+      textarea.addEventListener("keydown", function(e) {
         // hide on enter
         // but don't hide on shift + enter
         if (e.keyCode === 13 && !e.shiftKey) {
@@ -625,7 +599,7 @@ export default {
         }
       });
 
-      textarea.addEventListener("keydown", function (e) {
+      textarea.addEventListener("keydown", function(e) {
         var scale = textNode.getAbsoluteScale().x;
         setTextareaWidth(textNode.width() * scale);
         textarea.style.height = "auto";
@@ -633,7 +607,7 @@ export default {
           textarea.scrollHeight + textNode.fontSize() + "px";
       });
 
-      function handleOutsideClick (e) {
+      function handleOutsideClick(e) {
         if (e.target !== textarea) {
           removeTextarea();
         }
@@ -643,7 +617,7 @@ export default {
       });
     },
 
-    findIndexItemSelected (typeName, shapeName) {
+    findIndexItemSelected(typeName, shapeName) {
       switch (typeName) {
         case TYPE.LINE:
           return this.listLine.findIndex(
@@ -666,7 +640,7 @@ export default {
       }
     },
 
-    deleteDraw () {
+    deleteDraw() {
       if (this.selectedShapeName && this.selectedTypeName) {
         try {
           let index = this.findIndexItemSelected(
@@ -700,7 +674,7 @@ export default {
       }
     },
 
-    fillDataShape (shapeName = "", typeName = "") {
+    fillDataShape(shapeName = "", typeName = "") {
       try {
         let index = this.findIndexItemSelected(typeName, shapeName);
         switch (typeName) {
@@ -751,7 +725,7 @@ export default {
     // this.downloadURI(dataURL, 'stage.png');
     // },
 
-    updateDataShape (shapeName, typeName, typeData, value) {
+    updateDataShape(shapeName, typeName, typeData, value) {
       try {
         let index = this.findIndexItemSelected(typeName, shapeName);
         switch (typeData) {
@@ -773,7 +747,7 @@ export default {
       }
     },
 
-    updateColorItemByType (typeItem, indexItem, newValue) {
+    updateColorItemByType(typeItem, indexItem, newValue) {
       try {
         switch (typeItem) {
           case TYPE.LINE:
@@ -797,7 +771,7 @@ export default {
       }
     },
 
-    setRefsShapeSelected () {
+    setRefsShapeSelected() {
       if (this.selectedTypeName && this.selectedShapeName) {
         let index = this.findIndexItemSelected(
           this.selectedTypeName,
@@ -824,7 +798,7 @@ export default {
       }
     },
 
-    getChangeOfShape () {
+    getChangeOfShape() {
       return {
         x: itemSelected.x(),
         y: itemSelected.y(),
@@ -836,7 +810,7 @@ export default {
       };
     },
 
-    updateShapeWhenChange (e) {
+    updateShapeWhenChange(e) {
       let change = this.getChangeOfShape();
       if (this.selectedShapeName && this.selectedTypeName) {
         try {
@@ -874,11 +848,11 @@ export default {
           itemSelected.scaleY(1);
           this.updateTransformer();
           this.$forceUpdate();
-        } catch (error) { }
+        } catch (error) {}
       }
     },
 
-    changeFontSizeNote (value) {
+    changeFontSizeNote(value) {
       if (
         value &&
         !this.isFillData &&
@@ -894,17 +868,11 @@ export default {
       }
     },
 
-    exportImg () {
-      console.log(stage.toDataURL({ toPixelRatio: 0.85 }))
-    },
-
-    initState () {
+    initState() {
       this.$nextTick(() => {
         vm = this;
         layer = this.$refs.layer.getNode();
         layer2 = this.$refs.layer2.getNode();
-        layer3 = this.$refs.layer3.getNode();
-        signature = this.$refs.signature.getNode();
         stage = this.$refs.stage.getNode();
         tr = this.$refs.transformerText.getNode();
 
@@ -914,10 +882,8 @@ export default {
 
         let wrapper = document.querySelector(".pScrollDoc");
         var img = new Image();
-        var signature = new Image();
         img.setAttribute("crossOrigin", "anonymous");
         img.src = this.urlImg;
-        signature.src = '/static/chuky2.png'
         img.onload = () => {
           let ratio = img.width / img.height;
           img.width = wrapper.clientWidth;
@@ -926,11 +892,6 @@ export default {
           this.$set(this.stageSize, "width", img.width);
           this.image = img;
         };
-        signature.onload = () => {
-          this.signatureConfig = signature;
-          // this.$set(this.signatureConfig, 'draggable', true);
-          // console.log(this.signatureConfig)
-        }
 
         stage.draw();
         layer.draw();
@@ -939,15 +900,19 @@ export default {
     }
   },
 
-  mounted () {
+  mounted() {
     this.initState();
+    !this.isWatchingNote &&
+      EventBus.$on("getChangeLastItem", () => {
+        this.sendDataItemChange();
+      });
   },
 
   watch: {
     urlImg: {
       immediate: true,
       deep: true,
-      handler (value) {
+      handler(value) {
         this.selectedShapeName = "";
         this.selectedTypeName = "";
         this.listShape = [].concat(this.listShapeDoc);
@@ -958,7 +923,7 @@ export default {
       }
     },
 
-    "form.color": function (newValue) {
+    "form.color": function(newValue) {
       if (
         newValue &&
         !this.isFillData &&
@@ -976,7 +941,7 @@ export default {
   },
 
   computed: {
-    listFontSize: function () {
+    listFontSize: function() {
       let arr = [];
       Object.keys(STYLE.FONT_SIZE).forEach(key => {
         arr.push(STYLE.FONT_SIZE[key]);
@@ -986,44 +951,4 @@ export default {
   }
 };
 </script>
-<style>
-.pDetailDocs {
-  max-height: calc(100vh - 100px);
-  height: auto;
-}
-
-.pControl {
-  padding: 10px 0;
-}
-
-.pDetail {
-  max-height: calc(100vh - 100px);
-  height: auto;
-}
-
-.pScrollDoc {
-  max-height: calc(100vh - 153px);
-  height: auto;
-  border: 1px solid #abb4bd;
-  border-bottom-color: transparent;
-  border-radius: 8px 0 0 0;
-}
-
-.pScrollDoc.pWatchingNote {
-  margin-top: 50px;
-}
-
-.page-center > div {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  max-height: calc(100vh - 140px);
-  height: calc(100vh - 140px);
-  position: relative;
-}
-
-.BtnEdit {
-  background-color: #efeff4;
-  border: none;
-}
-</style>
+<style></style>
