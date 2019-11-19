@@ -1,5 +1,7 @@
 # vue-test
 
+[![Greenkeeper badge](https://badges.greenkeeper.io/CuongStf/konvas-vue.svg)](https://greenkeeper.io/)
+
 > A Vue.js project
 
 ## Build Setup
