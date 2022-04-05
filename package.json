@@ -15,7 +15,7 @@
   "dependencies": {
     "element-ui": "2.4.11",
     "konva": "^3.3.3",
-    "moment": "^2.24.0",
+    "moment": "^2.29.2",
     "vue": "^2.5.2",
     "vue-konva": "^2.0.7",
     "vue-perfect-scrollbar": "^0.1.0",
